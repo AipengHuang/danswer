@@ -2515,15 +2515,18 @@ export function ChatPage({
         </div>
 
         <>
-          <div
-            className="
+          {documentSelection && (
+            <div
+              className="
             
               hidden sm:block
               [@media(max-width:1299px)]:block
               [@media(min-width:1300px)]:hidden
               min-w-[800px]
             "
-          ></div>
+            ></div>
+          )}
+
 
           <motion.div initial="hidden"
             animate={documentSelection ? { width: 600, opacity: 1 } : { width: 0, opacity: 0 }} // 当 `documentSelection` 为 false 时逐渐减小宽度和透明度
@@ -2535,7 +2538,7 @@ export function ChatPage({
                 px-10
                 pt-10
                 bg-background
-                 min-w-[600px]
+                min-w-[600px]
                 [@media(min-width:1300px)]:relative
                 [@media(min-width:1300px)]:flex-1
                 [@media(max-width:1299px)]:absolute
@@ -2560,20 +2563,22 @@ export function ChatPage({
         </>
         <FixedLogo />
 
+        <div className="block sm:hidden">
+          <DocumentSidebar
+            initialWidth={350}
+            ref={innerSidebarElementRef}
+            closeSidebar={() => setDocumentSelection(false)}
+            selectedMessage={aiMessage}
+            selectedDocuments={selectedDocuments}
+            toggleDocumentSelection={toggleDocumentSelection}
+            clearSelectedDocuments={clearSelectedDocuments}
+            selectedDocumentTokens={selectedDocumentTokens}
+            maxTokens={maxTokens}
+            isLoading={isFetchingChatMessages}
+            isOpen={documentSelection}
+          />
+        </div>
 
-        {/* <DocumentSidebar
-          initialWidth={350}
-          ref={innerSidebarElementRef}
-          closeSidebar={() => setDocumentSelection(false)}
-          selectedMessage={aiMessage}
-          selectedDocuments={selectedDocuments}
-          toggleDocumentSelection={toggleDocumentSelection}
-          clearSelectedDocuments={clearSelectedDocuments}
-          selectedDocumentTokens={selectedDocumentTokens}
-          maxTokens={maxTokens}
-          isLoading={isFetchingChatMessages}
-          isOpen={documentSelection}
-        /> */}
       </div >
     </>
   );
