@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY
 
 type NonEmptyObject = { [k: string]: any };
 
@@ -219,30 +219,12 @@ export const ChatWidget = () => {
     "
     >
       <div
-        className="
-        bg-gradient-to-r
-        from-blue-600
-        to-blue-800
-        text-white
-        p-4
-        font-bold
-        flex
-        justify-between
-        items-center
-      "
+        className="flex items-center justify-between p-4 font-bold text-white bg-gradient-to-r from-blue-600 to-blue-800"
       >
         <span>Chat Support</span>
       </div>
       <div
-        className="
-        flex-grow
-        overflow-y-auto
-        p-4
-        space-y-4
-        bg-gray-50
-        border-b
-        border-gray-200
-      "
+        className="flex-grow p-4 space-y-4 overflow-y-auto border-b border-gray-200 bg-gray-50"
       >
         {messages.map((message, index) => (
           <div
@@ -257,11 +239,10 @@ export const ChatWidget = () => {
               max-w-[75%]
               p-3
               rounded-lg
-              ${
-                message.isUser
+              ${message.isUser
                   ? "bg-blue-500 text-white"
                   : "bg-white text-black"
-              }
+                }
               shadow
             `}
             >
@@ -271,7 +252,7 @@ export const ChatWidget = () => {
         ))}
         {isLoading && (
           <div className="flex justify-center">
-            <div className="animate-pulse flex space-x-2">
+            <div className="flex space-x-2 animate-pulse">
               <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
               <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
               <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
@@ -281,12 +262,7 @@ export const ChatWidget = () => {
       </div>
       <form
         onSubmit={handleSubmit}
-        className="
-        p-4
-        bg-white
-        border-t
-        border-gray-200
-      "
+        className="p-4 bg-white border-t border-gray-200 "
       >
         <div className="relative">
           <input
@@ -294,37 +270,17 @@ export const ChatWidget = () => {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type a message..."
-            className="
-              w-full
-              p-2
-              pr-10
-              border
-              border-gray-300
-              rounded-full
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              focus:border-transparent
-            "
+            className="w-full p-2 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading}
-            className="
-              absolute
-              right-2
-              top-1/2
-              transform
-              -translate-y-1/2
-              text-blue-500
-              hover:text-blue-600
-              focus:outline-none
-            "
+            className="absolute text-blue-500 transform -translate-y-1/2 right-2 top-1/2 hover:text-blue-600 focus:outline-none"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="w-6 h-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

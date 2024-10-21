@@ -254,8 +254,8 @@ def setup_postgres(db_session: Session) -> None:
     if GEN_AI_API_KEY and fetch_default_provider(db_session) is None:
         # Only for dev flows
         logger.notice("Setting up default OpenAI LLM for dev.")
-        llm_model = GEN_AI_MODEL_VERSION or "gpt-4o-mini"
-        fast_model = FAST_GEN_AI_MODEL_VERSION or "gpt-4o-mini"
+        llm_model = GEN_AI_MODEL_VERSION or "gpt-4"
+        fast_model = FAST_GEN_AI_MODEL_VERSION or "gpt-4"
         model_req = LLMProviderUpsertRequest(
             name="DevEnvPresetOpenAI",
             provider="openai",
