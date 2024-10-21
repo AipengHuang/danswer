@@ -11,8 +11,12 @@ export default function WrappedChat({
     <FunctionalWrapper
       initiallyToggled={initiallyToggled}
       content={(toggledSidebar, toggle) => (
+
         <ChatPage toggle={toggle} toggledSidebar={toggledSidebar} />
+
       )}
     />
   );
 }
+
+

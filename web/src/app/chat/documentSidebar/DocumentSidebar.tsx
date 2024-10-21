@@ -61,19 +61,18 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
         }}
       >
         <div
-          className={`ml-auto rounded-l-lg relative border-l bg-text-100 sidebar z-50 absolute right-0 h-screen transition-all duration-300 ${
-            isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-[10%]"
-          }`}
+          className={`ml-auto rounded-l-lg relative border-l bg-text-100 sidebar z-50 absolute right-0 h-screen transition-all duration-300 ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-[10%]"
+            }`}
           ref={ref}
           style={{
             width: initialWidth,
           }}
         >
-          <div className="pb-6 flex-initial overflow-y-hidden flex flex-col h-screen">
+          <div className="flex flex-col flex-initial h-screen pb-6 overflow-y-hidden">
             {popup}
-            <div className="pl-3 mx-2 pr-6 mt-3 flex text-text-800 flex-col text-2xl text-emphasis flex font-semibold">
+            <div className="flex flex-col pl-3 pr-6 mx-2 mt-3 text-2xl font-semibold text-text-800 text-emphasis">
               {dedupedDocuments.length} Documents
-              <p className="text-sm font-semibold flex flex-wrap gap-x-2 text-text-600 mt-1">
+              <p className="flex flex-wrap mt-1 text-sm font-semibold gap-x-2 text-text-600">
                 Select to add to continuous context
                 <a
                   href="https://docs.danswer.dev/introduction"
@@ -84,19 +83,18 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
               </p>
             </div>
 
-            <Divider className="mb-0 mt-4 pb-2" />
+            <Divider className="pb-2 mt-4 mb-0" />
 
             {currentDocuments ? (
-              <div className="overflow-y-auto flex-grow dark-scrollbar flex relative flex-col">
+              <div className="relative flex flex-col flex-grow overflow-y-auto dark-scrollbar">
                 {dedupedDocuments.length > 0 ? (
                   dedupedDocuments.map((document, ind) => (
                     <div
                       key={document.document_id}
-                      className={`${
-                        ind === dedupedDocuments.length - 1
-                          ? "mb-5"
-                          : "border-b border-border-light mb-3"
-                      }`}
+                      className={`${ind === dedupedDocuments.length - 1
+                        ? "mb-5"
+                        : "border-b border-border-light mb-3"
+                        }`}
                     >
                       <ChatDocumentDisplay
                         document={document}
@@ -136,7 +134,7 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
           </div>
 
           <div className="absolute left-0 bottom-0 w-full bg-gradient-to-b from-neutral-100/0 via-neutral-100/40 backdrop-blur-xs to-neutral-100 h-[100px]" />
-          <div className="sticky bottom-4 w-full left-0 justify-center flex gap-x-4">
+          <div className="sticky left-0 flex justify-center w-full bottom-4 gap-x-4">
             <button
               className="bg-[#84e49e] text-xs p-2 rounded text-text-800"
               onClick={() => closeSidebar()}
@@ -145,10 +143,9 @@ export const DocumentSidebar = forwardRef<HTMLDivElement, DocumentSidebarProps>(
             </button>
 
             <button
-              className="bg-error text-xs p-2 rounded text-text-200"
+              className="p-2 text-xs rounded bg-error text-text-200"
               onClick={() => {
                 clearSelectedDocuments();
-
                 closeSidebar();
               }}
             >
