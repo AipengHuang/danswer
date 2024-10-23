@@ -84,7 +84,7 @@ export const SearchResultsDisplay = ({
   if (isFetching && disabledAgentic) {
     return (
       <div className="mt-4">
-        <div className="font-bold flex justify-between text-emphasis border-b mb-3 pb-1 border-border text-lg">
+        <div className="flex justify-between pb-1 mb-3 text-lg font-bold border-b text-emphasis border-border">
           <p>Results</p>
         </div>
       </div>
@@ -97,7 +97,7 @@ export const SearchResultsDisplay = ({
   if (documents != null && documents.length == 0 && searchState == "input") {
     return (
       <div className="text-base gap-x-1.5 flex flex-col">
-        <div className="flex gap-x-2 items-center font-semibold">
+        <div className="flex items-center font-semibold gap-x-2">
           <AlertIcon size={16} />
           No documents were found!
         </div>
@@ -116,9 +116,9 @@ export const SearchResultsDisplay = ({
     return (
       <div className="mt-4">
         {error && (
-          <div className="text-error text-sm">
+          <div className="text-sm text-error">
             <div className="flex">
-              <AlertIcon size={16} className="text-error my-auto mr-1" />
+              <AlertIcon size={16} className="my-auto mr-1 text-error" />
               <p className="italic">{error || "No documents were found!"}</p>
             </div>
           </div>
@@ -133,15 +133,15 @@ export const SearchResultsDisplay = ({
   );
   const relevantDocs = documents
     ? documents.filter((doc) => {
-        return (
-          showAll ||
-          (searchResponse &&
-            searchResponse.additional_relevance &&
-            searchResponse.additional_relevance[doc.document_id] &&
-            searchResponse.additional_relevance[doc.document_id].relevant) ||
-          doc.is_relevant
-        );
-      })
+      return (
+        showAll ||
+        (searchResponse &&
+          searchResponse.additional_relevance &&
+          searchResponse.additional_relevance[doc.document_id] &&
+          searchResponse.additional_relevance[doc.document_id].relevant) ||
+        doc.is_relevant
+      );
+    })
     : [];
 
   const getUniqueDocuments = (
@@ -165,7 +165,7 @@ export const SearchResultsDisplay = ({
 
       {documents && documents.length > 0 && (
         <div className="mt-4">
-          <div className="font-bold flex justify-between text-emphasis border-b mb-3 pb-1 border-border text-lg">
+          <div className="flex justify-between pb-1 mb-3 text-lg font-bold border-b text-emphasis border-border">
             <p>Results</p>
             {!DISABLE_LLM_DOC_RELEVANCE &&
               (contentEnriched || searchResponse.additional_relevance) && (
@@ -180,11 +180,10 @@ export const SearchResultsDisplay = ({
                         setShowAll((showAll) => !showAll);
                       }
                     }}
-                    className={`flex items-center justify-center animate-fade-in-up rounded-lg p-1 text-xs transition-all duration-300 w-20 h-8 ${
-                      !sweep
-                        ? "bg-background-agentic-toggled text-text-agentic-toggled"
-                        : "bg-background-agentic-untoggled text-text-agentic-untoggled"
-                    }`}
+                    className={`flex items-center justify-center animate-fade-in-up rounded-lg p-1 text-xs transition-all duration-300 w-20 h-8 ${!sweep
+                      ? "bg-background-agentic-toggled text-text-agentic-toggled"
+                      : "bg-background-agentic-untoggled text-text-agentic-untoggled"
+                      }`}
                     style={{
                       transform: sweep ? "rotateZ(180deg)" : "rotateZ(0deg)",
                     }}
@@ -203,9 +202,9 @@ export const SearchResultsDisplay = ({
 
                       <span className="ml-1">
                         {!sweep ? (
-                          <MagnifyingIcon className="h-4 w-4" />
+                          <MagnifyingIcon className="w-4 h-4" />
                         ) : (
-                          <UndoIcon className="h-4 w-4" />
+                          <UndoIcon className="w-4 h-4" />
                         )}
                       </span>
                     </div>
@@ -272,7 +271,7 @@ export function AgenticDisclaimer({
   forceNonAgentic: () => void;
 }) {
   return (
-    <div className="ml-auto mx-12 flex transition-all duration-300 animate-fade-in flex-col gap-y-2">
+    <div className="flex flex-col mx-12 ml-auto transition-all duration-300 animate-fade-in gap-y-2">
       <p className="text-sm">
         Please note that agentic quries can take substantially longer than
         non-agentic queries. You can click <i>non-agentic</i> to re-submit your
@@ -280,7 +279,7 @@ export function AgenticDisclaimer({
       </p>
       <button
         onClick={forceNonAgentic}
-        className="p-2 bg-background-900 mr-auto text-text-200 rounded-lg text-xs my-auto"
+        className="p-2 my-auto mr-auto text-xs rounded-lg bg-background-900 text-text-200"
       >
         Non-agentic
       </button>

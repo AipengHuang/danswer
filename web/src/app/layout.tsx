@@ -71,8 +71,8 @@ export default async function RootLayout({
               <Logo height={40} width={40} />
             </div>
 
-            <Card className="p-8 max-w-md">
-              <h1 className="text-2xl font-bold mb-4 text-error">Error</h1>
+            <Card className="max-w-md p-8">
+              <h1 className="mb-4 text-2xl font-bold text-error">Error</h1>
               <p className="text-text-500">
                 Your Danswer instance was not configured properly and your
                 settings could not be loaded. This could be due to an admin
@@ -122,15 +122,15 @@ export default async function RootLayout({
               <HeaderTitle>Danswer</HeaderTitle>
               <Logo height={40} width={40} />
             </div>
-            <Card className="p-8 max-w-md">
-              <h1 className="text-2xl font-bold mb-4 text-error">
+            <Card className="max-w-md p-8">
+              <h1 className="mb-4 text-2xl font-bold text-error">
                 Access Restricted
               </h1>
-              <p className="text-text-500 mb-4">
+              <p className="mb-4 text-text-500">
                 We regret to inform you that your access to Danswer has been
                 temporarily suspended due to a lapse in your subscription.
               </p>
-              <p className="text-text-500 mb-4">
+              <p className="mb-4 text-text-500">
                 To reinstate your access and continue benefiting from
                 Danswer&apos;s powerful features, please update your payment
                 information.
@@ -172,15 +172,15 @@ export default async function RootLayout({
           className={`text-default min-h-screen bg-background ${
             // TODO: remove this once proper dark mode exists
             process.env.THEME_IS_DARK?.toLowerCase() === "true" ? "dark" : ""
-          }`}
+            }`}
         >
           {productGating === GatingType.PARTIAL && (
-            <div className="fixed top-0 left-0 right-0 z-50 bg-warning-100 text-warning-900 p-2 text-center">
+            <div className="fixed top-0 left-0 right-0 z-50 p-2 text-center bg-warning-100 text-warning-900">
               <p className="text-sm font-medium">
                 Your account is pending payment!{" "}
                 <a
                   href="/admin/cloud-settings"
-                  className="font-bold underline hover:text-warning-700 transition-colors"
+                  className="font-bold underline transition-colors hover:text-warning-700"
                 >
                   Update your billing information
                 </a>{" "}

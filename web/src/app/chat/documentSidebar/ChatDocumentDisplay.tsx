@@ -39,11 +39,10 @@ export function ChatDocumentDisplay({
   return (
     <div
       key={document.semantic_identifier}
-      className={`p-2 w-[325px] justify-start rounded-md ${
-        isSelected ? "bg-background-200" : "bg-background-125"
-      } text-sm mx-3`}
+      className={`p-2 w-[325px] justify-start rounded-md ${isSelected ? "bg-background-200" : "bg-background-125"
+        } text-sm mx-3`}
     >
-      <div className="flex relative justify-start overflow-y-visible">
+      <div className="relative flex justify-start overflow-y-visible">
         <a
           href={document.link}
           target="_blank"
@@ -58,20 +57,20 @@ export function ChatDocumentDisplay({
           ) : (
             <SourceIcon sourceType={document.source_type} iconSize={18} />
           )}
-          <p className="overflow-hidden text-left text-ellipsis mx-2 my-auto text-sm">
+          <p className="mx-2 my-auto overflow-hidden text-sm text-left text-ellipsis">
             {document.semantic_identifier || document.document_id}
           </p>
         </a>
         {document.score !== null && (
           <div className="my-auto">
             {isAIPick && (
-              <div className="w-4 h-4 my-auto mr-1 flex flex-col">
+              <div className="flex flex-col w-4 h-4 my-auto mr-1">
                 <HoverPopup
-                  mainContent={<FiRadio className="text-gray-500 my-auto" />}
+                  mainContent={<FiRadio className="my-auto text-gray-500" />}
                   popupContent={
-                    <div className="text-xs text-gray-300 w-36 flex">
+                    <div className="flex text-xs text-gray-300 w-36">
                       <div className="flex mx-auto">
-                        <div className="w-3 h-3 flex flex-col my-auto mr-1">
+                        <div className="flex flex-col w-3 h-3 my-auto mr-1">
                           <FiInfo className="my-auto" />
                         </div>
                         <div className="my-auto">The AI liked this doc!</div>
@@ -111,10 +110,12 @@ export function ChatDocumentDisplay({
       </div>
       <div>
         <div className="mt-1">
+
           <DocumentMetadataBlock document={document} />
+
         </div>
       </div>
-      <p className="line-clamp-3 pl-1 pt-2 mb-1 text-start break-words">
+      <p className="pt-2 pl-1 mb-1 break-words line-clamp-3 text-start">
         {buildDocumentSummaryDisplay(document.match_highlights, document.blurb)}
         test
       </p>

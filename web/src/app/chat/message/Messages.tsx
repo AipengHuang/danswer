@@ -8,7 +8,7 @@ import {
   FiGlobe,
 } from "react-icons/fi";
 import { FeedbackType } from "../types";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   DanswerDocument,
@@ -55,6 +55,7 @@ import { LlmOverride } from "@/lib/hooks";
 import { ContinueGenerating } from "./ContinueMessage";
 import { MemoizedLink, MemoizedParagraph } from "./MemoizedTextComponents";
 import { extractCodeText } from "./codeUtils";
+import { getAiObject, getAiStreamMessage } from "@/lib/action";
 
 const TOOLS_WITH_CUSTOM_HANDLING = [
   SEARCH_TOOL_NAME,
@@ -132,6 +133,7 @@ export const AIMessage = ({
   handleShowRetrieved,
   handleSearchQueryEdit,
   handleForceSearch,
+  handleRelatedQuestion,
   retrievalDisabled,
   currentPersona,
   otherMessagesCanSwitchTo,
@@ -159,6 +161,7 @@ export const AIMessage = ({
   handleShowRetrieved?: (messageNumber: number | null) => void;
   handleSearchQueryEdit?: (query: string) => void;
   handleForceSearch?: () => void;
+  handleRelatedQuestion?: (question: string) => void;
   retrievalDisabled?: boolean;
   overriddenModel?: string;
   regenerate?: (modelOverRide: LlmOverride) => Promise<void>;
@@ -195,6 +198,9 @@ export const AIMessage = ({
     useState(false);
   const { isHovering, trackedElementRef, hoverElementRef } = useMouseTracking();
 
+  const [relatedQuestions, setRelatedQuestions] = useState<string[]>([]);
+
+
   const settings = useContext(SettingsContext);
   // this is needed to give Prism a chance to load
 
@@ -223,6 +229,14 @@ export const AIMessage = ({
     };
     content = trimIncompleteCodeSection(content);
   }
+
+  useEffect(() => {
+    if (isComplete && content) {
+      generateRelatedQuestions(content as string).then((questions) => {
+        setRelatedQuestions(questions);
+      });
+    }
+  }, [isComplete, content]);
 
   let filteredDocs: FilteredDanswerDocument[] = [];
 
@@ -276,7 +290,7 @@ export const AIMessage = ({
   const renderedMarkdown = useMemo(() => {
     return (
       <ReactMarkdown
-        className="prose max-w-full text-base"
+        className="max-w-full text-base prose"
         components={markdownComponents}
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypePrism, { ignoreMissing: true }]]}
@@ -291,6 +305,54 @@ export const AIMessage = ({
     onMessageSelection &&
     otherMessagesCanSwitchTo &&
     otherMessagesCanSwitchTo.length > 1;
+
+
+  const generateRelatedQuestions = async (answer: string): Promise<string[]> => {
+    try {
+      const response = await fetch('/api/generate-related-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answer }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch related questions: ${response.status}`);
+      }
+      const data = await response.json();
+      return extractQuestions(data.questions)
+    } catch (error) {
+
+      console.error('Failed to generate related questions:', error);
+      return [];
+    }
+  };
+
+  const extractQuestions = useCallback((resultString: string) => {
+    try {
+      // Try parsing the result string directly as JSON
+      const resultObj = JSON.parse(resultString);
+      return resultObj.questions || [];
+    } catch (error) {
+      console.error("Failed to parse result string as JSON:", error);
+
+      // If direct parsing fails, try to extract the JSON part from the string
+      const jsonMatch = resultString.match(/{[\s\S]*}/);
+      if (jsonMatch) {
+        try {
+          const resultObj = JSON.parse(jsonMatch[0]);
+          return resultObj.questions || [];
+        } catch (error) {
+          console.error("Failed to parse the extracted JSON part:", error);
+        }
+      } else {
+        console.error("No JSON object found in the result string.");
+      }
+      return [];
+    }
+  }, []);
+
+
 
   return (
     <div
@@ -309,9 +371,9 @@ export const AIMessage = ({
             />
 
             <div className="w-full">
-              <div className="max-w-message-max break-words">
+              <div className="break-words max-w-message-max">
                 <div className="w-full ml-4">
-                  <div className="max-w-message-max break-words">
+                  <div className="break-words max-w-message-max">
                     {!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME ? (
                       <>
                         {query !== undefined &&
@@ -395,9 +457,9 @@ export const AIMessage = ({
                       <></>
                     )}
                     {isComplete && docs && docs.length > 0 && (
-                      <div className="mt-2 -mx-8 w-full mb-4 flex relative">
+                      <div className="relative flex w-full mt-2 mb-4 -mx-8">
                         <div className="w-full">
-                          <div className="px-8 flex gap-x-2">
+                          <div className="flex px-8 gap-x-2">
                             {!settings?.isMobile &&
                               filteredDocs.length > 0 &&
                               filteredDocs.slice(0, 2).map((doc, ind) => (
@@ -413,11 +475,11 @@ export const AIMessage = ({
                                     rel="noreferrer"
                                   >
                                     <Citation link={doc.link} index={ind + 1} />
-                                    <p className="shrink truncate ellipsis break-all">
+                                    <p className="break-all truncate shrink ellipsis">
                                       {doc.semantic_identifier ||
                                         doc.document_id}
                                     </p>
-                                    <div className="ml-auto flex-none">
+                                    <div className="flex-none ml-auto">
                                       {doc.is_internet ? (
                                         <InternetSearchIcon url={doc.link} />
                                       ) : (
@@ -429,9 +491,10 @@ export const AIMessage = ({
                                     </div>
                                   </a>
                                   <div className="flex overscroll-x-scroll mt-.5">
+
                                     <DocumentMetadataBlock document={doc} />
                                   </div>
-                                  <div className="line-clamp-3 text-xs break-words pt-1">
+                                  <div className="pt-1 text-xs break-words line-clamp-3">
                                     {doc.blurb}
                                   </div>
                                 </div>
@@ -445,7 +508,7 @@ export const AIMessage = ({
                               key={-1}
                               className="cursor-pointer w-[200px] rounded-lg flex-none transition-all duration-500 hover:bg-background-125 bg-text-100 px-4 py-2 border-b"
                             >
-                              <div className="text-sm flex justify-between font-semibold text-text-700">
+                              <div className="flex justify-between text-sm font-semibold text-text-700">
                                 <p className="line-clamp-1">See context</p>
                                 <div className="flex gap-x-1">
                                   {uniqueSources.map((sourceType, ind) => {
@@ -460,7 +523,7 @@ export const AIMessage = ({
                                   })}
                                 </div>
                               </div>
-                              <div className="line-clamp-3 text-xs break-words pt-1">
+                              <div className="pt-1 text-xs break-words line-clamp-3">
                                 See more
                               </div>
                             </div>
@@ -479,24 +542,25 @@ export const AIMessage = ({
                         transform opacity-100 translate-y-0"
                   `}
                       >
+
                         <TooltipGroup>
                           <div className="flex justify-start w-full gap-x-0.5">
                             {includeMessageSwitcher && (
-                              <div className="-mx-1 mr-auto">
+                              <div className="mr-auto -mx-1">
                                 <MessageSwitcher
                                   currentPage={currentMessageInd + 1}
                                   totalPages={otherMessagesCanSwitchTo.length}
                                   handlePrevious={() => {
                                     onMessageSelection(
                                       otherMessagesCanSwitchTo[
-                                        currentMessageInd - 1
+                                      currentMessageInd - 1
                                       ]
                                     );
                                   }}
                                   handleNext={() => {
                                     onMessageSelection(
                                       otherMessagesCanSwitchTo[
-                                        currentMessageInd + 1
+                                      currentMessageInd + 1
                                       ]
                                     );
                                   }}
@@ -538,6 +602,7 @@ export const AIMessage = ({
                             </CustomTooltip>
                           )}
                         </TooltipGroup>
+
                       </div>
                     ) : (
                       <div
@@ -555,21 +620,21 @@ export const AIMessage = ({
                         <TooltipGroup>
                           <div className="flex justify-start w-full gap-x-0.5">
                             {includeMessageSwitcher && (
-                              <div className="-mx-1 mr-auto">
+                              <div className="mr-auto -mx-1">
                                 <MessageSwitcher
                                   currentPage={currentMessageInd + 1}
                                   totalPages={otherMessagesCanSwitchTo.length}
                                   handlePrevious={() => {
                                     onMessageSelection(
                                       otherMessagesCanSwitchTo[
-                                        currentMessageInd - 1
+                                      currentMessageInd - 1
                                       ]
                                     );
                                   }}
                                   handleNext={() => {
                                     onMessageSelection(
                                       otherMessagesCanSwitchTo[
-                                        currentMessageInd + 1
+                                      currentMessageInd + 1
                                       ]
                                     );
                                   }}
@@ -615,6 +680,13 @@ export const AIMessage = ({
                         </TooltipGroup>
                       </div>
                     ))}
+                  {/* TODO: show relation question */}
+                  <RelatedQuestions
+                    questions={relatedQuestions}
+                    onQuestionClick={(question: string) => {
+                      handleRelatedQuestion && handleRelatedQuestion(question);
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -629,6 +701,37 @@ export const AIMessage = ({
     </div>
   );
 };
+
+const RelatedQuestions = ({
+  questions,
+  onQuestionClick,
+}: {
+  questions: string[];
+  onQuestionClick: (question: string) => void;
+}) => {
+  return (
+    <div className="mt-4">
+      {
+        questions.length > 0 && (
+          <h4 className="text-sm font-semibold">Related questions you might be interested in:</h4>
+
+        )
+      }
+      <div className="flex flex-wrap gap-2 mt-2">
+        {questions.map((question, index) => (
+          <button
+            key={index}
+            className="px-4 py-2 text-left bg-gray-200 rounded hover:bg-gray-300"
+            onClick={() => onQuestionClick(question)}
+          >
+            {question}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 
 function MessageSwitcher({
   currentPage,
@@ -648,7 +751,7 @@ function MessageSwitcher({
         onClick={currentPage === 1 ? undefined : handlePrevious}
       />
 
-      <span className="text-emphasis select-none">
+      <span className="select-none text-emphasis">
         {currentPage} / {totalPages}
       </span>
 
@@ -716,7 +819,7 @@ export const HumanMessage = ({
   return (
     <div
       id="danswer-human-message"
-      className="pt-5 pb-1 px-2 lg:px-5 flex -mr-6 relative"
+      className="relative flex px-2 pt-5 pb-1 -mr-6 lg:px-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -788,7 +891,7 @@ export const HumanMessage = ({
                           }
                         }}
                       />
-                      <div className="flex justify-end mt-2 gap-2 pr-4">
+                      <div className="flex justify-end gap-2 pr-4 mt-2">
                         <button
                           className={`
                           w-fit
@@ -839,11 +942,11 @@ export const HumanMessage = ({
                   </div>
                 ) : typeof content === "string" ? (
                   <>
-                    <div className="ml-auto mr-1 my-auto">
+                    <div className="my-auto ml-auto mr-1">
                       {onEdit &&
-                      isHovered &&
-                      !isEditing &&
-                      (!files || files.length === 0) ? (
+                        isHovered &&
+                        !isEditing &&
+                        (!files || files.length === 0) ? (
                         <Tooltip delayDuration={1000} content={"Edit message"}>
                           <button
                             className="hover:bg-hover p-1.5 rounded"
@@ -861,14 +964,13 @@ export const HumanMessage = ({
                     </div>
 
                     <div
-                      className={`${
-                        !(
-                          onEdit &&
-                          isHovered &&
-                          !isEditing &&
-                          (!files || files.length === 0)
-                        ) && "ml-auto"
-                      } relative flex-none max-w-[70%] mb-auto whitespace-break-spaces rounded-3xl bg-user px-5 py-2.5`}
+                      className={`${!(
+                        onEdit &&
+                        isHovered &&
+                        !isEditing &&
+                        (!files || files.length === 0)
+                      ) && "ml-auto"
+                        } relative flex-none max-w-[70%] mb-auto whitespace-break-spaces rounded-3xl bg-user px-5 py-2.5`}
                     >
                       {content}
                     </div>
@@ -876,9 +978,9 @@ export const HumanMessage = ({
                 ) : (
                   <>
                     {onEdit &&
-                    isHovered &&
-                    !isEditing &&
-                    (!files || files.length === 0) ? (
+                      isHovered &&
+                      !isEditing &&
+                      (!files || files.length === 0) ? (
                       <div className="my-auto">
                         <Hoverable
                           icon={FiEdit2}
@@ -891,7 +993,7 @@ export const HumanMessage = ({
                     ) : (
                       <div className="h-[27px]" />
                     )}
-                    <div className="ml-auto rounded-lg p-1">{content}</div>
+                    <div className="p-1 ml-auto rounded-lg">{content}</div>
                   </>
                 )}
               </div>

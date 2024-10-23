@@ -1782,7 +1782,10 @@ export function ChatPage({
     };
   }
 
-
+  const handleRelatedQuestionClick = (question: string) => {
+    // 将相关问题作为新的用户消息发送
+    onSubmit({ messageOverride: question });
+  };
 
   // 定义动画变量
   const leftVariants = {
@@ -2180,6 +2183,7 @@ export function ChatPage({
                                         toggleDocumentSelection={
                                           toggleDocumentSelectionAspects
                                         }
+                                        handleRelatedQuestion={handleRelatedQuestionClick}
                                         docs={message.documents}
                                         currentPersona={liveAssistant}
                                         alternativeAssistant={
